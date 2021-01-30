@@ -31,23 +31,24 @@ class Distribution:
 
     # Translates ids before anything else occurs, matching keys get replaced with their value. Anything captured by this
     # list will not go through any further filtering.
-    ID_PRE_TRANSLATION = {
+    ITEM_ID_PRE_TRANSLATION = {
         'Hat_Army': 'Army Hat',
         'CanoePadelX2': 'Canoe Padels'
     }
 
     # If any of these strings exist anywhere in a item's id, we do not strip numbers from it.
     # This prevents stripping certain ammo types.
-    ID_INTEGER_TRUNCATE_BLACKLIST_AGGRESSIVE = [
+    ITEM_ID_INTEGER_TRUNCATE_BLACKLIST_AGGRESSIVE = [
         'Bullets',
         'Box'
     ]
 
     # Remove any instances of the following from ids, the order is important!
-    ID_BLACKLIST = [
+    ITEM_ID_BLACKLIST = [
         'DOWN',
         'Bag_',
         'farming.',
+        'camping.',
         'Radio.',
         'Base.',
         '_DefaultTEXTURE_TINT',
@@ -78,7 +79,8 @@ class Distribution:
     ]
 
     # If any of the following exists anywhere in a id, replace the entire id with the value.
-    ID_TRANSLATION_AGGRESSIVE = {
+    ITEM_ID_TRANSLATION_AGGRESSIVE = {
+        'Gloves_Leather': 'Gloves Leather',
         'Map': 'Map',
         'Bracelet': 'Bracelet',
         'Earring': 'Earring',
@@ -96,7 +98,8 @@ class Distribution:
 
     # After all previous steps, translate any matching ids to the following values.
     # If translation occurs, injection of whitespace will not occur!
-    ID_TRANSLATION = {
+    ITEM_ID_TRANSLATION = {
+        'HandTorch': 'Flashlight',
         'Bullets38Box': '38 Box',
         'Bullets44Box': '44 Box',
         'Bullets45Box': '45 Box',
@@ -134,10 +137,12 @@ class Distribution:
         'PillsAntiDep': 'Antidepressants',
         'PillsBeta': 'Beta Blockers',
         'PillsSleepingTablets': 'Sleeping Tablets',
+        'PillsVitamins': 'Vitamins',
         'WhiskeyEmpty': 'Empty_Bottle_(Alcohol)|Whiskey Empty',
         'BeerEmpty': 'Empty_Bottle_(Alcohol)|Beer Empty',
         'BluePen': 'Pen',
-        'RedPen': 'Pen'
+        'RedPen': 'Pen',
+        'WateredCan': 'Watering Can'
     }
 
     def __init__(self, node, is_procedural, procedural_distributions):
@@ -232,21 +237,21 @@ class Distribution:
             item = Item(item_id)
             self.items[item_id] = item
 
-            item.containers.add(container_id)
-            self.containers.add(container_id)
+        item.containers.add(container_id)
+        self.containers.add(container_id)
 
     def cleanup_id(self, id):
-        id_pre_translation_entry = Distribution.ID_PRE_TRANSLATION.get(id)
+        id_pre_translation_entry = Distribution.ITEM_ID_PRE_TRANSLATION.get(id)
 
         if id_pre_translation_entry:
             return id_pre_translation_entry
 
-        for blacklist_entry in Distribution.ID_BLACKLIST:
+        for blacklist_entry in Distribution.ITEM_ID_BLACKLIST:
             id = id.replace(blacklist_entry, '')
 
         trim_digits = True
 
-        for blacklist_entry in Distribution.ID_INTEGER_TRUNCATE_BLACKLIST_AGGRESSIVE:
+        for blacklist_entry in Distribution.ITEM_ID_INTEGER_TRUNCATE_BLACKLIST_AGGRESSIVE:
             if blacklist_entry in id:
                 trim_digits = False
                 break
@@ -255,14 +260,14 @@ class Distribution:
             id = id.rstrip(string.digits)
 
         aggressive_translation_applied = False
-        for key, value in Distribution.ID_TRANSLATION_AGGRESSIVE.items():
+        for key, value in Distribution.ITEM_ID_TRANSLATION_AGGRESSIVE.items():
             if key in id:
                 id = value
                 aggressive_translation_applied = True
                 break
 
         if not aggressive_translation_applied:
-            id_translation = Distribution.ID_TRANSLATION.get(id)
+            id_translation = Distribution.ITEM_ID_TRANSLATION.get(id)
 
             if id_translation:
                 id = id_translation

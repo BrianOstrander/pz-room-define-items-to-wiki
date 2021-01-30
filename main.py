@@ -82,6 +82,7 @@ def main():
             export_result = export_result + '\n! Container !! Items'
 
             containers = sorted(entry.containers)
+
             items = []
             for key, item in entry.items.items():
                 items.append(item)
