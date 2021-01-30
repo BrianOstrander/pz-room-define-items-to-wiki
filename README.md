@@ -1,6 +1,6 @@
 # Room Define to Wiki
 
-This is used to generate the list of items spawned in various room definitions for [this wiki article.](https://pzwiki.net/wiki/Room_definitions_items)
+This is used to generate the list of items spawned in various room definitions for [this wiki article.](https://pzwiki.net/wiki/Room_definitions_and_item_spawns)
 
 ## How to use this repository:
 
