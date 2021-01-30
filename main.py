@@ -1,15 +1,15 @@
 import sys
 from pathlib import Path
-import lupa
 from lupa import LuaRuntime
 from distribution import Distribution
+from room_descriptions import ROOM_DESCRIPTIONS
+from version import VERSION
 
 DISTRIBUTIONS_PATH = 'resources/Distributions.lua'
 PROCEDURAL_DISTRIBUTIONS_PATH = 'resources/ProceduralDistributions.lua'
-
-ROOM_DESCRIPTIONS = {
-    'some room name': 'some description'
-}
+EXPORTS_PATH = 'exports'
+EXPORTS_WARNING_PATH = 'exports/DO NOT SAVE HERE.txt'
+EXPORTS_FILE_PATH = 'exports/wiki_result.txt'
 
 def main():
     root_path = Path(sys.path[0])
@@ -23,6 +23,17 @@ def main():
     if not procedural_distributions_path.exists():
         print('Unable to find ' + PROCEDURAL_DISTRIBUTIONS_PATH)
         return
+
+    exports_path = root_path.joinpath(EXPORTS_PATH)
+
+    if not exports_path.exists():
+        exports_path.mkdir()
+
+    exports_warning_path = root_path.joinpath(EXPORTS_WARNING_PATH)
+
+    if not exports_warning_path.exists():
+        with open(exports_warning_path, "w") as warning_file:
+            print('Do not save any changes to this directory, it will be overwritten by the next operation!', file=warning_file)
 
     lua = LuaRuntime(unpack_returned_tuples=True)
     lua.execute(open(distributions_path, "r").read())
@@ -40,17 +51,21 @@ def main():
     for node in distribution_lua[1].items():
         distribution_entries.append(Distribution(node, False, procedural_distribution_entries))
 
+    export_result = '\'\'\'Warning: Everything below has been programmatically generated - any changes made will be lost on the next update!\'\'\''
+    export_result = export_result + '\n\n\'\'\'Generated from Project Zomboid version {} - Using room-define-to-items version {}\'\'\''.format(VERSION['PZ'], VERSION['PROJECT'])
+    export_result = export_result + '\n\nIf you would like to modify how this information is presented, submit a merge request or create an issue [https://github.com/BrianOstrander/pz-room-define-items-to-wiki here.]'
+
     for entry in sorted(distribution_entries, key=lambda e: e.name.lower()):
         if entry.type == Distribution.TYPE_ROOM:
-            print('==={}==='.format(entry.name))
+            export_result = export_result + '\n==={}==='.format(entry.name)
             description = ROOM_DESCRIPTIONS.get(entry.name)
             if description:
-                print(description)
+                export_result = '\n' + export_result + description
 
-            print('{| class="wikitable sortable"')
-            print('|-')
+            export_result = export_result + '\n{| class="wikitable sortable"'
+            export_result = export_result + '\n|-'
             # header = '! Header text !! Header text !! Header text'
-            print('! Container !! Items')
+            export_result = export_result + '\n! Container !! Items'
 
             containers = sorted(entry.containers)
             items = []
@@ -66,13 +81,19 @@ def main():
                         result = '{}[[{}]], '.format(result, item.id)
                         any_appended = True
                 if any_appended:
-                    print('|-')
-                    print(result[:-2])
+                    export_result = export_result + '\n|-'
+                    export_result = export_result + '\n' + result[:-2]
 
-            print('|}')
+            export_result = export_result + '\n|}'
 
+    exports_file_path = root_path.joinpath(EXPORTS_FILE_PATH)
+    if exports_file_path.exists():
+        exports_file_path.unlink()
 
-    return
+    with open(exports_file_path, "w") as exports_file:
+        print(export_result, file=exports_file)
+
+    print('Check {} for the results of this operation.'.format(exports_file_path))
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
