@@ -51,9 +51,23 @@ def main():
     for node in distribution_lua[1].items():
         distribution_entries.append(Distribution(node, False, procedural_distribution_entries))
 
-    export_result = '\'\'\'Warning: Everything below has been programmatically generated - any changes made will be lost on the next update!\'\'\''
-    export_result = export_result + '\n\n\'\'\'Generated from Project Zomboid version {} - Using room-define-to-items version {}\'\'\''.format(VERSION['PZ'], VERSION['PROJECT'])
-    export_result = export_result + '\n\nIf you would like to modify how this information is presented, submit a merge request or create an issue [https://github.com/BrianOstrander/pz-room-define-items-to-wiki here.]'
+    export_result = '\'\'\'Warning: Everything below has been programmatically generated - any changes made will be ' \
+                    'lost on the next update!\'\'\' '
+
+    export_result = export_result + '\n\n\'\'\'Generated from Project Zomboid version {} - Using room-define-to-items ' \
+                                    'version {}\'\'\''.format(VERSION['PZ'], VERSION['PROJECT'])
+
+    export_result = export_result + '\n\nIf you would like to modify how this information is presented, submit a ' \
+                                    'merge request or create an issue [' \
+                                    'https://github.com/BrianOstrander/pz-room-define-items-to-wiki here.] '
+
+    export_result = export_result + '\n\nAll room defines are presented as is, for use in your custom maps. Exact ' \
+                                    'item names have been modified for increased readability and a greater chance of ' \
+                                    'linking to their respective wiki articles. For a full list of these items refer ' \
+                                    'to the \'\'Distributions.lua\'\' and \'\'ProceduralDistributions.lua\'\' files ' \
+                                    'in your Project Zomboid install directory. '
+
+    export_result = export_result + '\n\n== Room Defines and Item Spawns =='
 
     for entry in sorted(distribution_entries, key=lambda e: e.name.lower()):
         if entry.type == Distribution.TYPE_ROOM:
